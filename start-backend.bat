@@ -1,0 +1,9 @@
+@echo off
+echo Starting Odoo Hackathon Backend...
+echo.
+cd backend
+echo Installing dependencies...
+npm install
+echo.
+echo Starting development server...
+npm run dev 

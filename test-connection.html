@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .loading {
+            background-color: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .status {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 API Connection Test</h1>
+        <p>This page helps you test the connection between your frontend (port 8080) and backend (port 5000).</p>
+        
+        <div class="test-section">
+            <h3>Backend Status</h3>
+            <div id="backend-status" class="status">Testing...</div>
+            <button onclick="testBackend()">Test Backend Connection</button>
+            <div id="backend-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>API Endpoints Test</h3>
+            <button onclick="testUsers()">Test Users API</button>
+            <button onclick="testSkills()">Test Skills API</button>
+            <button onclick="testHealth()">Test Health Check</button>
+            <div id="api-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>CORS Test</h3>
+            <div id="cors-status" class="status">Testing...</div>
+            <button onclick="testCORS()">Test CORS</button>
+            <div id="cors-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Frontend Port Check</h3>
+            <div id="frontend-status" class="status">Current port: <span id="current-port"></span></div>
+            <p>Make sure your frontend is running on port 8080</p>
+        </div>
+    </div>
+
+    <script>
+        // Show current port
+        document.getElementById('current-port').textContent = window.location.port || '80';
+
+        async function testBackend() {
+            const resultDiv = document.getElementById('backend-result');
+            const statusDiv = document.getElementById('backend-status');
+            
+            resultDiv.innerHTML = '<div class="loading">Testing backend connection...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Backend is running!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                    statusDiv.textContent = '✅ Backend is running on port 5000';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Backend connection failed!</strong><br>
+                        Error: ${error.message}<br><br>
+                        <strong>Make sure:</strong><br>
+                        1. Backend is running on port 5000<br>
+                        2. Run: cd backend && npm run dev
+                    </div>
+                `;
+                statusDiv.textContent = '❌ Backend not accessible';
+            }
+        }
+
+        async function testUsers() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<div class="loading">Testing Users API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/users');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Users API working!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Users API failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testSkills() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<div class="loading">Testing Skills API...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/skills');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Skills API working!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Skills API failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<div class="loading">Testing Health Check...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Health Check working!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Health Check failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function testCORS() {
+            const resultDiv = document.getElementById('cors-result');
+            const statusDiv = document.getElementById('cors-status');
+            
+            resultDiv.innerHTML = '<div class="loading">Testing CORS...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/users', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ CORS is working!</strong><br>
+                            Frontend (port ${window.location.port || '80'}) can access backend (port 5000)
+                        </div>
+                    `;
+                    statusDiv.textContent = '✅ CORS configured correctly';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ CORS error!</strong><br>
+                        Error: ${error.message}<br><br>
+                        <strong>Possible solutions:</strong><br>
+                        1. Restart the backend server<br>
+                        2. Check if backend CORS is configured for port ${window.location.port || '80'}<br>
+                        3. Make sure both servers are running
+                    </div>
+                `;
+                statusDiv.textContent = '❌ CORS not working';
+            }
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            testBackend();
+            setTimeout(testCORS, 1000);
+        };
+    </script>
+</body>
+</html> 
